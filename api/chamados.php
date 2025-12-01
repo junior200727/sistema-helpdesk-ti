@@ -49,4 +49,28 @@ if ($method == 'POST') {
         echo json_encode(["success" => $result]);
     }
 }
+
+// --- ATUALIZAR STATUS DO CHAMADO (PUT) ---
+if ($method == 'PUT') {
+    // Apenas admin pode fechar chamados
+    if ($_SESSION['perfil'] !== 'admin') {
+        die(json_encode(["success" => false, "message" => "Apenas administradores."]));
+    }
+
+    $data = json_decode(file_get_contents("php://input"));
+
+    if(isset($data->id) && isset($data->novo_status)) {
+        $sql = "UPDATE chamados SET status = ?, data_fechamento = NOW() WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        
+        try {
+            $stmt->execute([$data->novo_status, $data->id]);
+            echo json_encode(["success" => true]);
+        } catch (PDOException $e) {
+            echo json_encode(["success" => false, "message" => "Erro SQL: " . $e->getMessage()]);
+        }
+    } else {
+        echo json_encode(["success" => false, "message" => "Dados incompletos."]);
+    }
+}
 ?>

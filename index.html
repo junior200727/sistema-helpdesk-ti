@@ -323,7 +323,7 @@
         </div>
     </div>
 
-    <div id="admin-view" class="dashboard-container hidden">
+   <div id="admin-view" class="dashboard-container hidden">
         <div class="sidebar">
             <div class="logo"><i class="fas fa-server"></i> Admin TI</div>
             <div class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</div>
@@ -331,6 +331,48 @@
             <div class="spacer"></div>
             <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
         </div>
+
+        <div class="main-content">
+            <div class="header">
+                <h1>Visão Geral</h1>
+                <div class="theme-switch" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Progresso Semanal</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProgress"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Prioridade</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartPriority"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Todos os Chamados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Assunto</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                            <th>Ações</th> </tr>
+                    </thead>
+                    <tbody>
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
         <div class="main-content">
             <div class="header">
                 <h1>Visão Geral</h1>
@@ -432,7 +474,7 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO ---
+        //CONFIGURAÇÃO
         const API_URL = './api';
 
         // --- COLE ISSO NO LUGAR ---
@@ -552,25 +594,36 @@
         }
 
         // --- CARREGAR DADOS DO ADMIN ---
+      // --- CARREGAR DADOS DO ADMIN (ATUALIZADA) ---
         async function loadAdminData() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php`);
                 const tickets = await response.json();
-
+                
                 const tbody = document.querySelector('#admin-view table tbody');
-                tbody.innerHTML = '';
+                tbody.innerHTML = ''; 
 
                 let statusCounts = { abertos: 0, resolvidos: 0 };
                 let priorityCounts = { alta: 0, media: 0, baixa: 0 };
 
                 tickets.forEach(ticket => {
                     // Contagem para gráficos
-                    if (ticket.status === 'aberto') statusCounts.abertos++;
-                    if (ticket.status === 'fechado') statusCounts.resolvidos++;
-                    if (priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
+                    if(ticket.status === 'aberto') statusCounts.abertos++;
+                    if(ticket.status === 'fechado') statusCounts.resolvidos++;
+                    if(priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
 
-                    let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
+                    let badgeClass = ticket.status === 'aberto' ? 'status-open' : 'status-closed';
                     let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
+
+                    // Lógica do Botão: Só mostra se estiver Aberto
+                    let acaoBotao = '';
+                    if (ticket.status === 'aberto') {
+                        acaoBotao = `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" style="background:#1cc88a; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                                        <i class="fas fa-check"></i> Concluir
+                                     </button>`;
+                    } else {
+                        acaoBotao = `<span style="color:#aaa; font-size:0.8em;">Concluído</span>`;
+                    }
 
                     tbody.innerHTML += `
                         <tr>
@@ -579,12 +632,34 @@
                             <td>${ticket.titulo}</td>
                             <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
                             <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                            <td>${acaoBotao}</td>
                         </tr>
                     `;
                 });
-
+                
                 renderCharts(statusCounts, priorityCounts);
             } catch (e) { console.error("Erro ao carregar admin data", e); }
+        }
+
+        // --- NOVA FUNÇÃO PARA CLICAR NO BOTÃO ---
+        async function mudarStatus(id, novoStatus) {
+            if(!confirm("Deseja marcar este chamado como resolvido?")) return;
+
+            try {
+                const response = await fetch(`${API_URL}/chamados.php`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ id: id, novo_status: novoStatus })
+                });
+                const result = await response.json();
+
+                if(result.success) {
+                    loadAdminData(); // Recarrega a tabela para ver a mudança
+                } else {
+                    alert("Erro: " + result.message);
+                }
+            } catch (e) {
+                console.error("Erro ao atualizar", e);
+            }
         }
 
         function logout() {
