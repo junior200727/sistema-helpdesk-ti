@@ -17,15 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
---
--- Banco de dados: `helpdesk_ti`
---
 
--- --------------------------------------------------------
-
---
--- Estrutura para tabela `chamados`
---
 
 CREATE TABLE `chamados` (
   `id` int(11) NOT NULL,
@@ -39,19 +31,13 @@ CREATE TABLE `chamados` (
   `data_fechamento` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `chamados`
---
+
 
 INSERT INTO `chamados` (`id`, `usuario_id`, `titulo`, `descricao`, `categoria`, `prioridade`, `status`, `data_abertura`, `data_fechamento`) VALUES
 (1, 2, 'Internet Lenta', 'Não consigo acessar o Google', 'Rede', 'alta', 'aberto', '2025-11-30 22:40:01', NULL),
 (2, 2, 'Chamado sobre Hardware', 'parou tudo', 'Hardware', 'alta', 'aberto', '2025-11-30 22:55:33', NULL);
 
--- --------------------------------------------------------
 
---
--- Estrutura para tabela `usuarios`
---
 
 CREATE TABLE `usuarios` (
   `id` int(11) NOT NULL,
@@ -62,55 +48,33 @@ CREATE TABLE `usuarios` (
   `data_cadastro` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Despejando dados para a tabela `usuarios`
---
+
 
 INSERT INTO `usuarios` (`id`, `nome`, `email`, `senha`, `perfil`, `data_cadastro`) VALUES
 (1, 'Carlos Admin', 'admin@empresa.com', '123456', 'admin', '2025-11-30 22:40:01'),
 (2, 'Maria Silva', 'maria@empresa.com', '123456', 'user', '2025-11-30 22:40:01');
 
---
--- Índices para tabelas despejadas
---
 
---
--- Índices de tabela `chamados`
---
+
+
 ALTER TABLE `chamados`
   ADD PRIMARY KEY (`id`),
   ADD KEY `usuario_id` (`usuario_id`);
 
---
--- Índices de tabela `usuarios`
---
+
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
 
---
--- AUTO_INCREMENT para tabelas despejadas
---
 
---
--- AUTO_INCREMENT de tabela `chamados`
---
 ALTER TABLE `chamados`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
---
--- AUTO_INCREMENT de tabela `usuarios`
---
+
 ALTER TABLE `usuarios`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
---
--- Restrições para tabelas despejadas
---
 
---
--- Restrições para tabelas `chamados`
---
 ALTER TABLE `chamados`
   ADD CONSTRAINT `chamados_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE;
 COMMIT;
