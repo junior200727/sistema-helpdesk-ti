@@ -295,52 +295,67 @@
             background: var(--bg-color);
             color: var(--text-color);
         }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
     </style>
 </head>
 
 <body>
 
     <div id="login-screen">
-        
+
         <div class="login-box" id="box-login">
             <i class="fas fa-lock fa-3x" style="color: var(--primary-color); margin-bottom: 15px;"></i>
             <h2>Acesso Restrito</h2>
             <p style="color: #666; margin-bottom: 25px;">Entre com suas credenciais</p>
-            
+
             <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
                 <input type="email" id="login-email" placeholder="E-mail">
                 <input type="password" id="login-senha" placeholder="Senha">
             </div>
 
             <button class="btn btn-primary" style="width: 100%;" onclick="fazerLoginReal()">ENTRAR</button>
-            
+
             <p style="margin-top: 20px; font-size: 0.9rem;">
-                Não tem conta? <a href="#" onclick="showRegister()" style="color: var(--primary-color); font-weight: bold;">Crie agora</a>
+                Não tem conta? <a href="#" onclick="showRegister()"
+                    style="color: var(--primary-color); font-weight: bold;">Crie agora</a>
             </p>
-            <p id="error-msg" style="color: var(--danger-color); margin-top: 10px; font-size: 0.9em; display: none;"></p>
+            <p id="error-msg" style="color: var(--danger-color); margin-top: 10px; font-size: 0.9em; display: none;">
+            </p>
         </div>
 
         <div class="login-box hidden" id="box-register">
             <i class="fas fa-user-plus fa-3x" style="color: var(--success-color); margin-bottom: 15px;"></i>
             <h2>Criar Conta</h2>
             <p style="color: #666; margin-bottom: 25px;">Preencha seus dados</p>
-            
+
             <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
                 <input type="text" id="reg-nome" placeholder="Seu Nome Completo">
                 <input type="email" id="reg-email" placeholder="Seu E-mail">
                 <input type="password" id="reg-senha" placeholder="Crie uma Senha">
             </div>
 
-            <button class="btn btn-primary" style="width: 100%; background-color: var(--success-color);" onclick="fazerCadastro()">CADASTRAR</button>
-            
+            <button class="btn btn-primary" style="width: 100%; background-color: var(--success-color);"
+                onclick="fazerCadastro()">CADASTRAR</button>
+
             <p style="margin-top: 20px; font-size: 0.9rem;">
-                Já tem conta? <a href="#" onclick="showLogin()" style="color: var(--primary-color); font-weight: bold;">Fazer Login</a>
+                Já tem conta? <a href="#" onclick="showLogin()"
+                    style="color: var(--primary-color); font-weight: bold;">Fazer Login</a>
             </p>
         </div>
 
     </div>
 
-   <div id="admin-view" class="dashboard-container hidden">
+    <div id="admin-view" class="dashboard-container hidden">
         <div class="sidebar">
             <div class="logo"><i class="fas fa-server"></i> Admin TI</div>
             <div class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</div>
@@ -382,47 +397,7 @@
                             <th>Assunto</th>
                             <th>Prioridade</th>
                             <th>Status</th>
-                            <th>Ações</th> </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-        <div class="main-content">
-            <div class="header">
-                <h1>Visão Geral</h1>
-                <div class="theme-switch" onclick="toggleTheme()">
-                    <i class="fas fa-moon"></i>
-                </div>
-            </div>
-
-            <div class="charts-container">
-                <div class="card">
-                    <h3 style="margin-bottom: 15px;">Progresso Semanal</h3>
-                    <div class="chart-wrapper">
-                        <canvas id="chartProgress"></canvas>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3 style="margin-bottom: 15px;">Prioridade</h3>
-                    <div class="chart-wrapper">
-                        <canvas id="chartPriority"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="margin-bottom: 15px;">Todos os Chamados</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Solicitante</th>
-                            <th>Assunto</th>
-                            <th>Prioridade</th>
-                            <th>Status</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -430,6 +405,47 @@
                 </table>
             </div>
         </div>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <h1>Visão Geral</h1>
+            <div class="theme-switch" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Progresso Semanal</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartProgress"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Prioridade</h3>
+                <div class="chart-wrapper">
+                    <canvas id="chartPriority"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">Todos os Chamados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Solicitante</th>
+                        <th>Assunto</th>
+                        <th>Prioridade</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
     </div>
 
     <div id="user-view" class="dashboard-container hidden">
@@ -439,62 +455,77 @@
             <div class="spacer"></div>
             <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
         </div>
+
         <div class="main-content">
+            
             <div class="header">
-                <h1>Meus Chamados</h1>
+                <h1>Painel do Usuário</h1>
                 <div class="theme-switch" onclick="toggleTheme()">
                     <i class="fas fa-moon"></i>
                 </div>
             </div>
 
-            <div class="card ticket-form" id="form-chamado">
-                <div>
-                    <label>Categoria do Problema</label>
-                    <select id="inp-categoria">
-                        <option>Hardware</option>
-                        <option>Software</option>
-                        <option>Rede</option>
-                        <option>Acesso</option>
-                    </select>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                
+                <div class="card ticket-form" id="form-chamado">
+                    <h3 style="margin-bottom: 15px; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                        <i class="fas fa-pen"></i> Abrir Novo Chamado
+                    </h3>
+                    
+                    <div>
+                        <label>Categoria do Problema</label>
+                        <select id="inp-categoria">
+                            <option>Hardware</option>
+                            <option>Software</option>
+                            <option>Rede</option>
+                            <option>Acesso</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label>Grau de Urgência</label>
+                        <select id="inp-prioridade">
+                            <option value="baixa">Baixa - Posso aguardar</option>
+                            <option value="media">Média - Atrapalha um pouco</option>
+                            <option value="alta">Alta - Parou meu trabalho</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label>Descrição Detalhada</label>
+                        <textarea id="inp-descricao" rows="4" placeholder="Descreva o que está acontecendo..."></textarea>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="createTicket()">
+                        <i class="fas fa-paper-plane"></i> Enviar Chamado
+                    </button>
                 </div>
-                <div>
-                    <label>Grau de Urgência</label>
-                    <select id="inp-prioridade">
-                        <option value="baixa">Baixa - Posso aguardar</option>
-                        <option value="media">Média - Atrapalha um pouco</option>
-                        <option value="alta">Alta - Parou meu trabalho</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Descrição Detalhada</label>
-                    <textarea id="inp-descricao" rows="5" placeholder="Descreva o que está acontecendo..."></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="createTicket()">Enviar Chamado</button>
-            </div>
 
-            <div class="card" style="margin-top: 30px;">
-                <h3>Histórico</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Assunto</th>
-                            <th>Categoria</th>
-                            <th>Data</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        </tbody>
-                </table>
-            </div>
-        </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: var(--text-color);">
+                        <i class="fas fa-history"></i> Meus Chamados Recentes
+                    </h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Assunto</th>
+                                <th>Categoria</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+
+            </div> </div>
     </div>
-
     <script>
-        
+
         const API_URL = './api';
 
-        
+
         function showRegister() {
             document.getElementById('box-login').classList.add('hidden');
             document.getElementById('box-register').classList.remove('hidden');
@@ -512,7 +543,7 @@
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
 
-            if(!nome || !email || !senha) {
+            if (!nome || !email || !senha) {
                 alert("Preencha todos os campos!");
                 return;
             }
@@ -522,10 +553,10 @@
                     method: 'POST',
                     body: JSON.stringify({ nome, email, senha })
                 });
-                
+
                 const result = await response.json();
 
-                if(result.success) {
+                if (result.success) {
                     alert("Conta criada com sucesso! Faça login agora.");
                     showLogin(); // Volta para tela de login automaticamente
                 } else {
@@ -653,23 +684,23 @@
         }
 
         // --- CARREGAR DADOS DO ADMIN ---
-      // --- CARREGAR DADOS DO ADMIN (ATUALIZADA) ---
+        // --- CARREGAR DADOS DO ADMIN (ATUALIZADA) ---
         async function loadAdminData() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php`);
                 const tickets = await response.json();
-                
+
                 const tbody = document.querySelector('#admin-view table tbody');
-                tbody.innerHTML = ''; 
+                tbody.innerHTML = '';
 
                 let statusCounts = { abertos: 0, resolvidos: 0 };
                 let priorityCounts = { alta: 0, media: 0, baixa: 0 };
 
                 tickets.forEach(ticket => {
                     // Contagem para gráficos
-                    if(ticket.status === 'aberto') statusCounts.abertos++;
-                    if(ticket.status === 'fechado') statusCounts.resolvidos++;
-                    if(priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
+                    if (ticket.status === 'aberto') statusCounts.abertos++;
+                    if (ticket.status === 'fechado') statusCounts.resolvidos++;
+                    if (priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
 
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : 'status-closed';
                     let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
@@ -695,14 +726,14 @@
                         </tr>
                     `;
                 });
-                
+
                 renderCharts(statusCounts, priorityCounts);
             } catch (e) { console.error("Erro ao carregar admin data", e); }
         }
 
         // --- NOVA FUNÇÃO PARA CLICAR NO BOTÃO ---
         async function mudarStatus(id, novoStatus) {
-            if(!confirm("Deseja marcar este chamado como resolvido?")) return;
+            if (!confirm("Deseja marcar este chamado como resolvido?")) return;
 
             try {
                 const response = await fetch(`${API_URL}/chamados.php`, {
@@ -711,7 +742,7 @@
                 });
                 const result = await response.json();
 
-                if(result.success) {
+                if (result.success) {
                     loadAdminData(); // Recarrega a tabela para ver a mudança
                 } else {
                     alert("Erro: " + result.message);
