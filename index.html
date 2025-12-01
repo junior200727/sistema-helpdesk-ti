@@ -301,26 +301,43 @@
 <body>
 
     <div id="login-screen">
-        <div class="login-box">
+        
+        <div class="login-box" id="box-login">
             <i class="fas fa-lock fa-3x" style="color: var(--primary-color); margin-bottom: 15px;"></i>
             <h2>Acesso Restrito</h2>
             <p style="color: #666; margin-bottom: 25px;">Entre com suas credenciais</p>
-
+            
             <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
-                <input type="email" id="login-email" placeholder="Digite seu e-mail (ex: admin@empresa.com)">
-                <input type="password" id="login-senha" placeholder="Digite sua senha">
+                <input type="email" id="login-email" placeholder="E-mail">
+                <input type="password" id="login-senha" placeholder="Senha">
             </div>
 
             <button class="btn btn-primary" style="width: 100%;" onclick="fazerLoginReal()">ENTRAR</button>
-
-            <p id="error-msg" style="color: var(--danger-color); margin-top: 15px; font-size: 0.9em; display: none;">
+            
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                Não tem conta? <a href="#" onclick="showRegister()" style="color: var(--primary-color); font-weight: bold;">Crie agora</a>
             </p>
-
-            <div style="margin-top: 20px; font-size: 0.8em; color: #888;">
-                <p><strong>Teste Admin:</strong> admin@empresa.com / 123456</p>
-                <p><strong>Teste User:</strong> maria@empresa.com / 123456</p>
-            </div>
+            <p id="error-msg" style="color: var(--danger-color); margin-top: 10px; font-size: 0.9em; display: none;"></p>
         </div>
+
+        <div class="login-box hidden" id="box-register">
+            <i class="fas fa-user-plus fa-3x" style="color: var(--success-color); margin-bottom: 15px;"></i>
+            <h2>Criar Conta</h2>
+            <p style="color: #666; margin-bottom: 25px;">Preencha seus dados</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <input type="text" id="reg-nome" placeholder="Seu Nome Completo">
+                <input type="email" id="reg-email" placeholder="Seu E-mail">
+                <input type="password" id="reg-senha" placeholder="Crie uma Senha">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; background-color: var(--success-color);" onclick="fazerCadastro()">CADASTRAR</button>
+            
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                Já tem conta? <a href="#" onclick="showLogin()" style="color: var(--primary-color); font-weight: bold;">Fazer Login</a>
+            </p>
+        </div>
+
     </div>
 
    <div id="admin-view" class="dashboard-container hidden">
@@ -474,12 +491,54 @@
     </div>
 
     <script>
-        //CONFIGURAÇÃO
+        
         const API_URL = './api';
 
-        // --- COLE ISSO NO LUGAR ---
+        
+        function showRegister() {
+            document.getElementById('box-login').classList.add('hidden');
+            document.getElementById('box-register').classList.remove('hidden');
+            document.getElementById('error-msg').style.display = 'none'; // Limpa erros
+        }
+
+        function showLogin() {
+            document.getElementById('box-register').classList.add('hidden');
+            document.getElementById('box-login').classList.remove('hidden');
+        }
+
+        //LÓGICA DE CADASTRO
+        async function fazerCadastro() {
+            const nome = document.getElementById('reg-nome').value;
+            const email = document.getElementById('reg-email').value;
+            const senha = document.getElementById('reg-senha').value;
+
+            if(!nome || !email || !senha) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/register.php`, {
+                    method: 'POST',
+                    body: JSON.stringify({ nome, email, senha })
+                });
+                
+                const result = await response.json();
+
+                if(result.success) {
+                    alert("Conta criada com sucesso! Faça login agora.");
+                    showLogin(); // Volta para tela de login automaticamente
+                } else {
+                    alert("Erro: " + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao conectar com o servidor.");
+            }
+        }
+
         async function fazerLoginReal() {
-            // 1. Pega os valores dos inputs que criamos no HTML
+            // Pega os valores dos inputs que criamos no HTML
             const emailDigitado = document.getElementById('login-email').value;
             const senhaDigitada = document.getElementById('login-senha').value;
             const msgErro = document.getElementById('error-msg');
