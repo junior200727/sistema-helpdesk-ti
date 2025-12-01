@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelpDesk TI - Sistema de Chamados</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* --- CSS VARIAVEIS (TEMA) --- */
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --text-color: #5a5c69;
+            --heading-color: #4e4e4e;
+            --sidebar-width: 250px;
+            --shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
+        }
+
+        /* Tema Escuro */
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #d1d1d1;
+            --heading-color: #ffffff;
+            --shadow: 0 .15rem 1.75rem 0 rgba(0, 0, 0, .5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- UTILITARIOS --- */
+        .hidden {
+            display: none !important;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        /* --- TELA DE LOGIN --- */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), #224abe);
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-roles {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* --- LAYOUT DO DASHBOARD --- */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--heading-color);
+        }
+
+        /* Tema Switcher */
+        .theme-switch {
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* --- ADMIN DASHBOARD --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .stat-info h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-info span {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--heading-color);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Tabela */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            color: var(--heading-color);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .status-open {
+            background: var(--warning-color);
+        }
+
+        .status-progress {
+            background: var(--primary-color);
+        }
+
+        .status-closed {
+            background: var(--success-color);
+        }
+
+        .priority-high {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .priority-med {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .priority-low {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* --- USER DASHBOARD --- */
+        .ticket-form {
+            display: grid;
+            gap: 15px;
+            max-width: 600px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="login-screen">
+        <div class="login-box">
+            <i class="fas fa-lock fa-3x" style="color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h2>Acesso Restrito</h2>
+            <p style="color: #666; margin-bottom: 25px;">Entre com suas credenciais</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <input type="email" id="login-email" placeholder="Digite seu e-mail (ex: admin@empresa.com)">
+                <input type="password" id="login-senha" placeholder="Digite sua senha">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="fazerLoginReal()">ENTRAR</button>
+
+            <p id="error-msg" style="color: var(--danger-color); margin-top: 15px; font-size: 0.9em; display: none;">
+            </p>
+
+            <div style="margin-top: 20px; font-size: 0.8em; color: #888;">
+                <p><strong>Teste Admin:</strong> admin@empresa.com / 123456</p>
+                <p><strong>Teste User:</strong> maria@empresa.com / 123456</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-view" class="dashboard-container hidden">
+        <div class="sidebar">
+            <div class="logo"><i class="fas fa-server"></i> Admin TI</div>
+            <div class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</div>
+            <div class="menu-item"><i class="fas fa-ticket-alt"></i> Chamados</div>
+            <div class="spacer"></div>
+            <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>Visão Geral</h1>
+                <div class="theme-switch" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Progresso Semanal</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProgress"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Prioridade</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartPriority"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Todos os Chamados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Assunto</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="user-view" class="dashboard-container hidden">
+        <div class="sidebar">
+            <div class="logo"><i class="fas fa-user-circle"></i> Portal User</div>
+            <div class="menu-item active"><i class="fas fa-plus-circle"></i> Novo Chamado</div>
+            <div class="spacer"></div>
+            <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>Meus Chamados</h1>
+                <div class="theme-switch" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+
+            <div class="card ticket-form" id="form-chamado">
+                <div>
+                    <label>Categoria do Problema</label>
+                    <select id="inp-categoria">
+                        <option>Hardware</option>
+                        <option>Software</option>
+                        <option>Rede</option>
+                        <option>Acesso</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Grau de Urgência</label>
+                    <select id="inp-prioridade">
+                        <option value="baixa">Baixa - Posso aguardar</option>
+                        <option value="media">Média - Atrapalha um pouco</option>
+                        <option value="alta">Alta - Parou meu trabalho</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Descrição Detalhada</label>
+                    <textarea id="inp-descricao" rows="5" placeholder="Descreva o que está acontecendo..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createTicket()">Enviar Chamado</button>
+            </div>
+
+            <div class="card" style="margin-top: 30px;">
+                <h3>Histórico</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Assunto</th>
+                            <th>Categoria</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURAÇÃO ---
+        const API_URL = './api';
+
+        // --- COLE ISSO NO LUGAR ---
+        async function fazerLoginReal() {
+            // 1. Pega os valores dos inputs que criamos no HTML
+            const emailDigitado = document.getElementById('login-email').value;
+            const senhaDigitada = document.getElementById('login-senha').value;
+            const msgErro = document.getElementById('error-msg');
+
+            // Limpa mensagens anteriores
+            msgErro.style.display = 'none';
+
+            // Validação básica
+            if (!emailDigitado || !senhaDigitada) {
+                msgErro.style.display = 'block';
+                msgErro.innerText = "Por favor, preencha e-mail e senha.";
+                return;
+            }
+
+            try {
+                // 2. Envia para o PHP (Backend)
+                const response = await fetch(`${API_URL}/login.php`, {
+                    method: 'POST',
+                    body: JSON.stringify({ email: emailDigitado, senha: senhaDigitada })
+                });
+
+                // 3. Processa a resposta
+                const text = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(text); // Tenta converter o texto do PHP em JSON
+                } catch (e) {
+                    console.error("Resposta inválida do PHP:", text);
+                    alert("Erro técnico no servidor. Verifique o console (F12).");
+                    return;
+                }
+
+                if (data.success) {
+                    // SUCESSO: Esconde login e mostra o painel certo
+                    document.getElementById('login-screen').classList.add('hidden');
+
+                    if (data.perfil === 'admin') {
+                        document.getElementById('admin-view').classList.remove('hidden');
+                        loadAdminData();
+                    } else {
+                        document.getElementById('user-view').classList.remove('hidden');
+                        // (Opcional) Mostra o nome do usuário no topo
+                        document.querySelector('#user-view .header h1').innerText = "Olá, " + data.nome;
+                        loadUserTickets();
+                    }
+                } else {
+                    // ERRO (Senha errada ou usuário não existe)
+                    msgErro.style.display = 'block';
+                    msgErro.innerText = data.message;
+                }
+
+            } catch (error) {
+                console.error('Erro de rede:', error);
+                msgErro.style.display = 'block';
+                msgErro.innerText = "Erro ao conectar com o sistema.";
+            }
+        }
+
+        // --- CARREGAR DADOS DO USUÁRIO ---
+        async function loadUserTickets() {
+            try {
+                const response = await fetch(`${API_URL}/chamados.php`);
+                const tickets = await response.json();
+
+                const tbody = document.querySelector('#user-view table tbody');
+                tbody.innerHTML = '';
+
+                tickets.forEach(ticket => {
+                    let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${ticket.titulo}</td>
+                            <td>${ticket.categoria}</td>
+                            <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
+                            <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (e) { console.error("Erro ao carregar tickets user", e); }
+        }
+
+        // --- ENVIAR NOVO CHAMADO ---
+        async function createTicket() {
+            const categoria = document.getElementById('inp-categoria').value;
+            const prioridade = document.getElementById('inp-prioridade').value;
+            const descricao = document.getElementById('inp-descricao').value;
+
+            if (!descricao) { alert("Por favor, descreva o problema."); return; }
+
+            const chamado = {
+                categoria: categoria,
+                prioridade: prioridade,
+                descricao: descricao,
+                titulo: "Chamado sobre " + categoria
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/chamados.php`, {
+                    method: 'POST',
+                    body: JSON.stringify(chamado)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert("Chamado aberto com sucesso!");
+                    loadUserTickets();
+                    document.getElementById('inp-descricao').value = '';
+                }
+            } catch (e) { console.error("Erro ao criar ticket", e); }
+        }
+
+        // --- CARREGAR DADOS DO ADMIN ---
+        async function loadAdminData() {
+            try {
+                const response = await fetch(`${API_URL}/chamados.php`);
+                const tickets = await response.json();
+
+                const tbody = document.querySelector('#admin-view table tbody');
+                tbody.innerHTML = '';
+
+                let statusCounts = { abertos: 0, resolvidos: 0 };
+                let priorityCounts = { alta: 0, media: 0, baixa: 0 };
+
+                tickets.forEach(ticket => {
+                    // Contagem para gráficos
+                    if (ticket.status === 'aberto') statusCounts.abertos++;
+                    if (ticket.status === 'fechado') statusCounts.resolvidos++;
+                    if (priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
+
+                    let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
+                    let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${ticket.id}</td>
+                            <td>${ticket.solicitante}</td>
+                            <td>${ticket.titulo}</td>
+                            <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
+                            <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                        </tr>
+                    `;
+                });
+
+                renderCharts(statusCounts, priorityCounts);
+            } catch (e) { console.error("Erro ao carregar admin data", e); }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        // --- TEMA E GRÁFICOS ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function renderCharts(statusData, priorityData) {
+            // Destroi gráficos antigos se existirem para não bugar ao recarregar
+            if (window.myChart1) window.myChart1.destroy();
+            if (window.myChart2) window.myChart2.destroy();
+
+            Chart.defaults.color = '#858796';
+
+            const ctx1 = document.getElementById('chartProgress').getContext('2d');
+            window.myChart1 = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Abertos', 'Resolvidos'],
+                    datasets: [{
+                        label: 'Status',
+                        data: [statusData.abertos || 0, statusData.resolvidos || 0],
+                        backgroundColor: ['#f6c23e', '#1cc88a'],
+                        borderRadius: 5
+                    }]
+                },
+                options: { maintainAspectRatio: false }
+            });
+
+            const ctx2 = document.getElementById('chartPriority').getContext('2d');
+            window.myChart2 = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Alta', 'Média', 'Baixa'],
+                    datasets: [{
+                        data: [priorityData.alta || 0, priorityData.media || 0, priorityData.baixa || 0],
+                        backgroundColor: ['#e74a3b', '#f6c23e', '#1cc88a']
+                    }]
+                },
+                options: { maintainAspectRatio: false, cutout: '70%' }
+            });
+        }
+    </script>
+</body>
+
+</html>
