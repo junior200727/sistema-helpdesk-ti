@@ -535,18 +535,15 @@
         }
 
         function checkAccess() {
-            // 1. Esconde todos os painéis e mostra o login por padrão
             loginScreen.classList.remove('hidden');
             if (userPanel) userPanel.classList.add('hidden');
             if (adminPanel) adminPanel.classList.add('hidden');
 
-            // **Se não houver usuário logado**, a tela de Login permanece visível
             if (!loggedInUser) {
                 document.title = 'IT HELPDESK - Login';
                 return;
             }
 
-            // 2. Se houver usuário logado, esconde Login e mostra o painel correto
             loginScreen.classList.add('hidden');
 
             if (loggedInUser.perfil === 'admin') {
@@ -556,20 +553,19 @@
             } else if (loggedInUser.perfil === 'user') {
                 if (userPanel) userPanel.classList.remove('hidden');
                 document.title = 'IT HELPDESK - Usuário';
-                // (Opcional) Mostra o nome do usuário no topo
+                
                 document.querySelector('#user-view .header h1').innerText = "Olá, " + loggedInUser.nome;
                 loadUserTickets();
             }
         }
 
-        // Inicializa a aplicação (Chamada uma vez ao carregar a página)
         function initializeApp() {
             const storedUser = localStorage.getItem('loggedInUser');
             if (storedUser) {
                 // Restaura o estado de login se houver dados salvos
                 loggedInUser = JSON.parse(storedUser);
             }
-            // Verifica e exibe a tela correta (login, user ou admin)
+            
             checkAccess();
         }
 
@@ -634,7 +630,6 @@
                 }
 
                 if (data.success) {
-                    // SUCESSO: Armazena o usuário, seu perfil e nome
                     loggedInUser = {
                         perfil: data.perfil,
                         nome: data.nome
@@ -665,7 +660,6 @@
 
         async function loadUserTickets() {
             try {
-                // OBS: Seu PHP precisa de uma forma de saber qual usuário está logado
                 const response = await fetch(`${API_URL}/chamados.php?user=${loggedInUser.nome}`);
                 const tickets = await response.json();
 
@@ -730,7 +724,6 @@
                 let priorityCounts = { alta: 0, media: 0, baixa: 0 };
 
                 tickets.forEach(ticket => {
-                    // Contagem para gráficos
                     if (ticket.status === 'aberto') statusCounts.abertos++;
                     if (ticket.status === 'fechado') statusCounts.resolvidos++;
                     if (priorityCounts[ticket.prioridade] !== undefined) priorityCounts[ticket.prioridade]++;
@@ -738,7 +731,7 @@
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : 'status-closed';
                     let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
 
-                    // Lógica do Botão: Só mostra se estiver Aberto
+                    
                     let acaoBotao = '';
                     if (ticket.status === 'aberto') {
                         acaoBotao = `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" style="background:#1cc88a; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
@@ -764,7 +757,7 @@
             } catch (e) { console.error("Erro ao carregar admin data", e); }
         }
 
-        //NOVA FUNÇÃO PARA CLICAR NO BOTÃO
+        
         async function mudarStatus(id, novoStatus) {
             if (!confirm("Deseja marcar este chamado como resolvido?")) return;
 
@@ -785,13 +778,12 @@
             }
         }
 
-        //TEMA E GRÁFICOS
+        
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
         }
 
         function renderCharts(statusData, priorityData) {
-            // Destroi gráficos antigos se existirem para não bugar ao recarregar
             if (window.myChart1) window.myChart1.destroy();
             if (window.myChart2) window.myChart2.destroy();
 
