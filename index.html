@@ -511,14 +511,22 @@
         </div>
     </div>
     <script>
-
+     
         const API_URL = './api';
+        let loggedInUser = null; // Variável para armazenar o estado do usuário
+
+        // Referências aos elementos que controlam a visualização
+        const loginScreen = document.getElementById('login-screen');
+        
+        const userPanel = document.getElementById('user-view');
+        const adminPanel = document.getElementById('admin-view');
+        const errorMsg = document.getElementById('error-msg');
 
 
         function showRegister() {
             document.getElementById('box-login').classList.add('hidden');
             document.getElementById('box-register').classList.remove('hidden');
-            document.getElementById('error-msg').style.display = 'none'; // Limpa erros
+            errorMsg.style.display = 'none';
         }
 
         function showLogin() {
@@ -526,7 +534,46 @@
             document.getElementById('box-login').classList.remove('hidden');
         }
 
-        //LÓGICA DE CADASTRO
+        function checkAccess() {
+            // 1. Esconde todos os painéis e mostra o login por padrão
+            loginScreen.classList.remove('hidden');
+            if (userPanel) userPanel.classList.add('hidden');
+            if (adminPanel) adminPanel.classList.add('hidden');
+
+            // **Se não houver usuário logado**, a tela de Login permanece visível
+            if (!loggedInUser) {
+                document.title = 'IT HELPDESK - Login';
+                return;
+            }
+
+            // 2. Se houver usuário logado, esconde Login e mostra o painel correto
+            loginScreen.classList.add('hidden');
+
+            if (loggedInUser.perfil === 'admin') {
+                if (adminPanel) adminPanel.classList.remove('hidden');
+                document.title = 'IT HELPDESK - Admin';
+                loadAdminData();
+            } else if (loggedInUser.perfil === 'user') {
+                if (userPanel) userPanel.classList.remove('hidden');
+                document.title = 'IT HELPDESK - Usuário';
+                // (Opcional) Mostra o nome do usuário no topo
+                document.querySelector('#user-view .header h1').innerText = "Olá, " + loggedInUser.nome;
+                loadUserTickets();
+            }
+        }
+
+        // Inicializa a aplicação (Chamada uma vez ao carregar a página)
+        function initializeApp() {
+            const storedUser = localStorage.getItem('loggedInUser');
+            if (storedUser) {
+                // Restaura o estado de login se houver dados salvos
+                loggedInUser = JSON.parse(storedUser);
+            }
+            // Verifica e exibe a tela correta (login, user ou admin)
+            checkAccess();
+        }
+
+
         async function fazerCadastro() {
             const nome = document.getElementById('reg-nome').value;
             const email = document.getElementById('reg-email').value;
@@ -547,7 +594,7 @@
 
                 if (result.success) {
                     alert("Conta criada com sucesso! Faça login agora.");
-                    showLogin(); // Volta para tela de login automaticamente
+                    showLogin();
                 } else {
                     alert("Erro: " + result.message);
                 }
@@ -558,34 +605,28 @@
         }
 
         async function fazerLoginReal() {
-            // Pega os valores dos inputs que criamos no HTML
             const emailDigitado = document.getElementById('login-email').value;
             const senhaDigitada = document.getElementById('login-senha').value;
-            const msgErro = document.getElementById('error-msg');
 
-            // Limpa mensagens anteriores
-            msgErro.style.display = 'none';
+            errorMsg.style.display = 'none';
 
-            // Validação básica
             if (!emailDigitado || !senhaDigitada) {
-                msgErro.style.display = 'block';
-                msgErro.innerText = "Por favor, preencha e-mail e senha.";
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = "Por favor, preencha e-mail e senha.";
                 return;
             }
 
             try {
-                // 2. Envia para o PHP (Backend)
                 const response = await fetch(`${API_URL}/login.php`, {
                     method: 'POST',
                     body: JSON.stringify({ email: emailDigitado, senha: senhaDigitada })
                 });
 
-                // 3. Processa a resposta
                 const text = await response.text();
                 let data;
 
                 try {
-                    data = JSON.parse(text); // Tenta converter o texto do PHP em JSON
+                    data = JSON.parse(text);
                 } catch (e) {
                     console.error("Resposta inválida do PHP:", text);
                     alert("Erro técnico no servidor. Verifique o console (F12).");
@@ -593,35 +634,39 @@
                 }
 
                 if (data.success) {
-                    // SUCESSO: Esconde login e mostra o painel certo
-                    document.getElementById('login-screen').classList.add('hidden');
+                    // SUCESSO: Armazena o usuário, seu perfil e nome
+                    loggedInUser = {
+                        perfil: data.perfil,
+                        nome: data.nome
+                    };
 
-                    if (data.perfil === 'admin') {
-                        document.getElementById('admin-view').classList.remove('hidden');
-                        loadAdminData();
-                    } else {
-                        document.getElementById('user-view').classList.remove('hidden');
-                        // (Opcional) Mostra o nome do usuário no topo
-                        document.querySelector('#user-view .header h1').innerText = "Olá, " + data.nome;
-                        loadUserTickets();
-                    }
+                    localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+                    
+                    checkAccess();
+
                 } else {
-                    // ERRO (Senha errada ou usuário não existe)
-                    msgErro.style.display = 'block';
-                    msgErro.innerText = data.message;
+                    
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerText = data.message;
                 }
 
             } catch (error) {
                 console.error('Erro de rede:', error);
-                msgErro.style.display = 'block';
-                msgErro.innerText = "Erro ao conectar com o sistema.";
+                errorMsg.style.display = 'block';
+                errorMsg.innerText = "Erro ao conectar com o sistema.";
             }
         }
 
-        // --- CARREGAR DADOS DO USUÁRIO ---
+        function logout() {
+            loggedInUser = null;
+            localStorage.removeItem('loggedInUser');
+            checkAccess(); 
+        }
+
         async function loadUserTickets() {
             try {
-                const response = await fetch(`${API_URL}/chamados.php`);
+                // OBS: Seu PHP precisa de uma forma de saber qual usuário está logado
+                const response = await fetch(`${API_URL}/chamados.php?user=${loggedInUser.nome}`);
                 const tickets = await response.json();
 
                 const tbody = document.querySelector('#user-view table tbody');
@@ -631,18 +676,18 @@
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
 
                     tbody.innerHTML += `
-                        <tr>
-                            <td>${ticket.titulo}</td>
-                            <td>${ticket.categoria}</td>
-                            <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
-                            <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                        </tr>
-                    `;
+                    <tr>
+                        <td>${ticket.titulo}</td>
+                        <td>${ticket.categoria}</td>
+                        <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
+                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                    </tr>
+                `;
                 });
             } catch (e) { console.error("Erro ao carregar tickets user", e); }
         }
 
-        // --- ENVIAR NOVO CHAMADO ---
+    
         async function createTicket() {
             const categoria = document.getElementById('inp-categoria').value;
             const prioridade = document.getElementById('inp-prioridade').value;
@@ -672,8 +717,7 @@
             } catch (e) { console.error("Erro ao criar ticket", e); }
         }
 
-        // --- CARREGAR DADOS DO ADMIN ---
-        // --- CARREGAR DADOS DO ADMIN (ATUALIZADA) ---
+        
         async function loadAdminData() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php`);
@@ -698,29 +742,29 @@
                     let acaoBotao = '';
                     if (ticket.status === 'aberto') {
                         acaoBotao = `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" style="background:#1cc88a; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
-                                        <i class="fas fa-check"></i> Concluir
-                                     </button>`;
+                                    <i class="fas fa-check"></i> Concluir
+                                 </button>`;
                     } else {
                         acaoBotao = `<span style="color:#aaa; font-size:0.8em;">Concluído</span>`;
                     }
 
                     tbody.innerHTML += `
-                        <tr>
-                            <td>#${ticket.id}</td>
-                            <td>${ticket.solicitante}</td>
-                            <td>${ticket.titulo}</td>
-                            <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
-                            <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                            <td>${acaoBotao}</td>
-                        </tr>
-                    `;
+                    <tr>
+                        <td>#${ticket.id}</td>
+                        <td>${ticket.solicitante}</td>
+                        <td>${ticket.titulo}</td>
+                        <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
+                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                        <td>${acaoBotao}</td>
+                    </tr>
+                `;
                 });
 
                 renderCharts(statusCounts, priorityCounts);
             } catch (e) { console.error("Erro ao carregar admin data", e); }
         }
 
-        // --- NOVA FUNÇÃO PARA CLICAR NO BOTÃO ---
+        //NOVA FUNÇÃO PARA CLICAR NO BOTÃO
         async function mudarStatus(id, novoStatus) {
             if (!confirm("Deseja marcar este chamado como resolvido?")) return;
 
@@ -741,11 +785,7 @@
             }
         }
 
-        function logout() {
-            location.reload();
-        }
-
-        // --- TEMA E GRÁFICOS ---
+        //TEMA E GRÁFICOS
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
         }
@@ -755,6 +795,7 @@
             if (window.myChart1) window.myChart1.destroy();
             if (window.myChart2) window.myChart2.destroy();
 
+            
             Chart.defaults.color = '#858796';
 
             const ctx1 = document.getElementById('chartProgress').getContext('2d');
@@ -785,6 +826,9 @@
                 options: { maintainAspectRatio: false, cutout: '70%' }
             });
         }
+
+        
+        initializeApp(); // Chama a função para verificar o login ao carregar a página
     </script>
 </body>
 
