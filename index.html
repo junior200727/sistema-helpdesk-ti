@@ -413,7 +413,48 @@
             <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
         </div>
 
+        <div class="main-content">
+            <div class="header">
+                <h1>Visão Geral</h1>
+                <div class="theme-switch" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                </div>
             </div>
+
+            <div class="charts-container">
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Progresso Semanal</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProgress"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 15px;">Prioridade</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="chartPriority"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">Todos os Chamados</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Assunto</th>
+                            <th>Prioridade</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <div id="user-view" class="dashboard-container hidden">
         <div class="sidebar">
@@ -812,7 +853,21 @@
         }
 
 
-        initializeApp();
+        initializeApp()
+        function initializeApp() {
+            
+            /* const storedUser = localStorage.getItem('loggedInUser');
+            if (storedUser) {
+                loggedInUser = JSON.parse(storedUser);
+            }
+            */
+            
+            // Garante que o usuário comece nulo (deslogado)
+            loggedInUser = null; 
+            
+            // Chama a verificação de acesso (que vai jogar para a tela de login)
+            checkAccess();
+        };
     </script>
 </body>
 
