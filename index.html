@@ -1,52 +1,54 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT HELPDESK</title>
+    <title>HelpDesk TI - Sistema de Chamados</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* ----------------------------------- */
-        /* CSS: Estilização Geral */
-        /* ----------------------------------- */
         :root {
-            --primary: #4e73df;
-            --success: #1cc88a;
-            --info: #36b9cc;
-            --warning: #f6c23e;
-            --danger: #e74a3b;
-            --dark: #5a5c69;
-            --light: #f8f9fc;
-            --bg-body: #f8f9fc;
-            --bg-panel: #ffffff;
-            --text-main: #5a5c69;
-            --border-color: #e3e6f0;
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --bg-color: #f8f9fc;
+            --card-bg: #ffffff;
+            --text-color: #5a5c69;
+            --heading-color: #4e4e4e;
+            --sidebar-width: 250px;
+            --shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
         }
 
-        /* Modo Escuro */
+
         body.dark-mode {
-            --bg-body: #121212;
-            --bg-panel: #1e1e1e;
-            --text-main: #e0e0e0;
-            --border-color: #333;
-            --light: #2c2c2c;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #d1d1d1;
+            --heading-color: #ffffff;
+            --shadow: 0 .15rem 1.75rem 0 rgba(0, 0, 0, .5);
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
 
         body {
-            font-family: 'Nunito', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             min-height: 100vh;
-            transition: background 0.3s;
+            overflow-y: auto;
         }
 
-        /* Utilitários */
         .hidden {
             display: none !important;
         }
@@ -56,170 +58,233 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            color: white;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .btn-primary {
-            background: var(--primary);
+            background: var(--primary-color);
+            color: white;
         }
 
-        .btn-success {
-            background: var(--success);
+        .btn-outline {
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            background: transparent;
         }
 
-        .btn-danger {
-            background: var(--danger);
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
         }
 
-        /* Layout de Login */
-        .login-container {
+        #login-screen {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-        }
-
-        .card-login {
-            background: var(--bg-panel);
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 350px;
-            text-align: center;
-        }
-
-        .card-login input {
-            width: 90%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            background: var(--bg-body);
-            color: var(--text-main);
-        }
-
-        /* Layout do Painel */
-        .sidebar {
-            width: 250px;
-            background: #4e73df;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), #224abe);
             position: fixed;
-            height: 100%;
+            width: 100%;
             top: 0;
             left: 0;
+            z-index: 1000;
         }
 
-        .content {
-            margin-left: 290px;
-            padding: 30px;
-            flex: 1;
-        }
-
-        /* Tabelas */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: var(--bg-panel);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        th,
-        td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        th {
-            background: rgba(0, 0, 0, 0.05);
-            font-weight: bold;
-        }
-
-        /* Badges de Status */
-        .status-badge {
-            padding: 5px 10px;
+        .login-box {
+            background: white;
+            padding: 40px;
             border-radius: 15px;
-            color: white;
-            font-size: 0.8em;
-            font-weight: bold;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
-        .status-open {
-            background: var(--warning);
+        .login-box h2 {
+            margin-bottom: 20px;
             color: #333;
         }
 
-        .status-progress {
-            background: var(--primary);
-        }
 
-        .status-closed {
-            background: var(--success);
-        }
-
-        /* Prioridade */
-        .priority-high {
-            color: var(--danger);
-            font-weight: bold;
-        }
-
-        .priority-med {
-            color: var(--warning);
-            font-weight: bold;
-        }
-
-        .priority-low {
-            color: var(--success);
-            font-weight: bold;
-        }
-
-        /* Cards do Dashboard */
-        .cards-row {
+        .dashboard-container {
             display: flex;
+            min-height: 100vh;
+        }
+
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-item {
+            padding: 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color);
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--heading-color);
+        }
+
+        .theme-switch {
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .card-dash {
-            flex: 1;
-            background: var(--bg-panel);
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            border-left: 5px solid var(--primary);
+        .stat-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 5px solid var(--primary-color);
         }
 
-        /* Formulário Novo Chamado */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
+        .stat-info h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
             margin-bottom: 5px;
         }
 
-        .form-control {
+        .stat-info span {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--heading-color);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            height: 300px;
+            position: relative;
+        }
+
+
+        table {
             width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border-color);
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            color: var(--heading-color);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .status-open {
+            background: var(--warning-color);
+        }
+
+        .status-progress {
+            background: var(--primary-color);
+        }
+
+        .status-closed {
+            background: var(--success-color);
+        }
+
+
+        .priority-high {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .priority-med {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .priority-low {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .ticket-form {
+            display: grid;
+            gap: 15px;
+            max-width: 100%;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            background: var(--bg-body);
-            color: var(--text-main);
+            background: var(--bg-color);
+            color: var(--text-color);
         }
 
-        textarea.form-control {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* --- Estilos do Modal de Detalhes --- */
         .modal {
             position: fixed;
             top: 0;
@@ -232,26 +297,50 @@
             align-items: center;
             z-index: 2000;
             backdrop-filter: blur(3px);
+
         }
 
         .modal-content {
-            background: var(--bg-panel);
-            color: var(--text-main);
+            background: white;
             padding: 25px;
             border-radius: 10px;
             width: 500px;
             max-width: 90%;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             position: relative;
+            color: #333;
+        }
+
+
+        body.dark-mode .modal-content {
+            background: #2c2c2c;
+            color: #f1f1f1;
+            border: 1px solid #444;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 10px;
+        }
+
+        .modal-content p {
+            margin: 10px 0;
         }
 
         .desc-box {
-            background: var(--bg-body);
+            background: #f8f9fa;
             padding: 15px;
             border-radius: 5px;
-            border-left: 4px solid var(--info);
+            border-left: 4px solid #4e73df;
             margin-top: 15px;
             white-space: pre-wrap;
+
+        }
+
+        body.dark-mode .desc-box {
+            background: #3a3b45;
+            border-left-color: #4e73df;
         }
 
         .close-btn {
@@ -264,143 +353,141 @@
         }
 
         .close-btn:hover {
-            color: var(--danger);
+            color: #f00;
         }
     </style>
 </head>
 
 <body>
 
-    <div id="login-screen" class="login-container">
-        <div id="box-login" class="card-login">
-            <h2><i class="fas fa-headset"></i> IT Helpdesk</h2>
-            <p>Faça login para continuar</p>
-            <input type="email" id="login-email" placeholder="E-mail">
-            <input type="password" id="login-senha" placeholder="Senha">
-            <button class="btn btn-primary" onclick="fazerLoginReal()">ENTRAR</button>
-            <p id="error-msg" style="color:red; font-size:0.9em; margin-top:10px; display:none;"></p>
-            <p style="margin-top:20px; font-size:0.8em;">
-                Não tem conta? <a href="#" onclick="showRegister()">Cadastre-se</a>
+    <div id="login-screen">
+
+        <div class="login-box" id="box-login">
+            <i class="fas fa-lock fa-3x" style="color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h2>Acesso Restrito</h2>
+            <p style="color: #666; margin-bottom: 25px;">Entre com suas credenciais</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <input type="email" id="login-email" placeholder="E-mail">
+                <input type="password" id="login-senha" placeholder="Senha">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="fazerLoginReal()">ENTRAR</button>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                Não tem conta? <a href="#" onclick="showRegister()"
+                    style="color: var(--primary-color); font-weight: bold;">Crie agora</a>
+            </p>
+            <p id="error-msg" style="color: var(--danger-color); margin-top: 10px; font-size: 0.9em; display: none;">
             </p>
         </div>
 
-        <div id="box-register" class="card-login hidden">
+        <div class="login-box hidden" id="box-register">
+            <i class="fas fa-user-plus fa-3x" style="color: var(--success-color); margin-bottom: 15px;"></i>
             <h2>Criar Conta</h2>
-            <input type="text" id="reg-nome" placeholder="Seu Nome Completo">
-            <input type="email" id="reg-email" placeholder="E-mail">
-            <input type="password" id="reg-senha" placeholder="Senha">
-            <button class="btn btn-success" onclick="fazerCadastro()">CADASTRAR</button>
-            <p style="margin-top:20px; font-size:0.8em;">
-                Já tem conta? <a href="#" onclick="showLogin()">Fazer Login</a>
+            <p style="color: #666; margin-bottom: 25px;">Preencha seus dados</p>
+
+            <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <input type="text" id="reg-nome" placeholder="Seu Nome Completo">
+                <input type="email" id="reg-email" placeholder="Seu E-mail">
+                <input type="password" id="reg-senha" placeholder="Crie uma Senha">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; background-color: var(--success-color);"
+                onclick="fazerCadastro()">CADASTRAR</button>
+
+            <p style="margin-top: 20px; font-size: 0.9rem;">
+                Já tem conta? <a href="#" onclick="showLogin()"
+                    style="color: var(--primary-color); font-weight: bold;">Fazer Login</a>
             </p>
         </div>
+
     </div>
 
-    <div id="user-view" class="hidden">
+    <div id="admin-view" class="dashboard-container hidden">
         <div class="sidebar">
-            <h3><i class="fas fa-user-circle"></i> Painel User</h3>
-            <p style="margin-bottom: 30px; opacity: 0.8;">Bem-vindo ao suporte.</p>
-            <a href="#" style="color:white; margin-bottom:15px; text-decoration:none;"><i class="fas fa-ticket-alt"></i>
-                Meus Chamados</a>
-            <div style="margin-top: auto;">
-                <button class="btn" onclick="toggleTheme()"
-                    style="background:rgba(255,255,255,0.2); width:100%; margin-bottom:10px;">🌙 Tema</button>
-                <button class="btn btn-danger" onclick="logout()" style="width:100%"><i class="fas fa-sign-out-alt"></i>
-                    Sair</button>
-            </div>
+            <div class="logo"><i class="fas fa-server"></i> Admin TI</div>
+            <div class="menu-item active"><i class="fas fa-chart-line"></i> Dashboard</div>
+            <div class="menu-item"><i class="fas fa-ticket-alt"></i> Chamados</div>
+            <div class="spacer"></div>
+            <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
         </div>
 
-        <div class="content">
+            </div>
+
+    <div id="user-view" class="dashboard-container hidden">
+        <div class="sidebar">
+            <div class="logo"><i class="fas fa-user-circle"></i> Portal User</div>
+            <div class="menu-item active"><i class="fas fa-plus-circle"></i> Novo Chamado</div>
+            <div class="spacer"></div>
+            <div class="menu-item" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</div>
+        </div>
+
+        <div class="main-content">
+
             <div class="header">
-                <h1>Meus Chamados</h1>
-            </div>
-
-            <div class="card-dash" style="margin-top:20px; border-left-color: var(--success);">
-                <h3><i class="fas fa-plus-circle"></i> Novo Chamado</h3>
-                <div class="form-group">
-                    <label>Categoria</label>
-                    <select id="inp-categoria" class="form-control">
-                        <option value="Hardware">Hardware (Impressora, PC, etc)</option>
-                        <option value="Software">Software (Office, Sistema, etc)</option>
-                        <option value="Rede">Rede / Internet</option>
-                        <option value="Acesso">Acesso / Senha</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Prioridade</label>
-                    <select id="inp-prioridade" class="form-control">
-                        <option value="baixa">Baixa</option>
-                        <option value="media">Média</option>
-                        <option value="alta">Alta</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descrição Detalhada</label>
-                    <textarea id="inp-descricao" class="form-control" placeholder="Descreva o problema..."></textarea>
-                </div>
-                <button class="btn btn-primary" onclick="createTicket()">Abrir Chamado</button>
-            </div>
-
-            <h3 style="margin-top:40px;">Histórico</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Assunto</th>
-                        <th>Categoria</th>
-                        <th>Data</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div id="admin-view" class="hidden">
-        <div class="sidebar" style="background: #2c3e50;">
-            <h3><i class="fas fa-user-shield"></i> Painel Admin</h3>
-            <p style="margin-bottom: 30px; opacity: 0.8;">Gerenciamento de TI</p>
-            <a href="#" style="color:white; margin-bottom:15px; text-decoration:none;"><i class="fas fa-chart-line"></i>
-                Dashboard</a>
-            <div style="margin-top: auto;">
-                <button class="btn" onclick="toggleTheme()"
-                    style="background:rgba(255,255,255,0.2); width:100%; margin-bottom:10px;">🌙 Tema</button>
-                <button class="btn btn-danger" onclick="logout()" style="width:100%"><i class="fas fa-sign-out-alt"></i>
-                    Sair</button>
-            </div>
-        </div>
-
-        <div class="content">
-            <h1>Visão Geral</h1>
-
-            <div class="cards-row">
-                <div class="card-dash" style="height:250px;">
-                    <h3>Status dos Chamados</h3>
-                    <canvas id="chartProgress"></canvas>
-                </div>
-                <div class="card-dash" style="height:250px;">
-                    <h3>Prioridade</h3>
-                    <canvas id="chartPriority"></canvas>
+                <h1>Painel do Usuário</h1>
+                <div class="theme-switch" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
                 </div>
             </div>
 
-            <div class="card-dash">
-                <h3>Todos os Chamados</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Solicitante</th>
-                            <th>Assunto</th>
-                            <th>Prioridade</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+
+                <div class="card ticket-form" id="form-chamado">
+                    <h3
+                        style="margin-bottom: 15px; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                        <i class="fas fa-pen"></i> Abrir Novo Chamado
+                    </h3>
+
+                    <div>
+                        <label>Categoria do Problema</label>
+                        <select id="inp-categoria">
+                            <option>Hardware</option>
+                            <option>Software</option>
+                            <option>Rede</option>
+                            <option>Acesso</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Grau de Urgência</label>
+                        <select id="inp-prioridade">
+                            <option value="baixa">Baixa - Posso aguardar</option>
+                            <option value="media">Média - Atrapalha um pouco</option>
+                            <option value="alta">Alta - Parou meu trabalho</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Descrição Detalhada</label>
+                        <textarea id="inp-descricao" rows="4"
+                            placeholder="Descreva o que está acontecendo..."></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="createTicket()">
+                        <i class="fas fa-paper-plane"></i> Enviar Chamado
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom: 15px; color: var(--text-color);">
+                        <i class="fas fa-history"></i> Meus Chamados Recentes
+                    </h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Assunto</th>
+                                <th>Categoria</th>
+                                <th>Data</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
     </div>
@@ -416,31 +503,24 @@
             <p><strong>Status:</strong> <span id="dt-status"></span></p>
 
             <h3>Descrição do Problema:</h3>
-            <div class="desc-box" id="dt-descricao"></div>
+            <div class="desc-box" id="dt-descricao">
+            </div>
 
             <div style="margin-top: 20px; text-align: right;">
-                <button class="btn btn-primary" onclick="closeModal()">Fechar</button>
+                <button onclick="closeModal()" style="padding: 8px 16px; cursor: pointer;">Fechar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // -----------------------------------
-        // 1. VARIÁVEIS GLOBAIS
-        // -----------------------------------
         const API_URL = './api';
         let loggedInUser = null;
-        let allTicketsCache = []; // Cache para armazenar chamados e usar no modal
-
-        // Referências aos elementos
+        let allTicketsCache = [];
         const loginScreen = document.getElementById('login-screen');
         const userPanel = document.getElementById('user-view');
         const adminPanel = document.getElementById('admin-view');
         const errorMsg = document.getElementById('error-msg');
 
-        // -----------------------------------
-        // 2. FUNÇÕES DE NAVEGAÇÃO E ACESSO
-        // -----------------------------------
         function showRegister() {
             document.getElementById('box-login').classList.add('hidden');
             document.getElementById('box-register').classList.remove('hidden');
@@ -452,20 +532,16 @@
             document.getElementById('box-login').classList.remove('hidden');
         }
 
-        // Função Principal de Segurança: Verifica sessão e redireciona
         function checkAccess() {
-            // Esconde tudo primeiro
             loginScreen.classList.remove('hidden');
             if (userPanel) userPanel.classList.add('hidden');
             if (adminPanel) adminPanel.classList.add('hidden');
 
-            // Se não tem usuário logado, para aqui (fica na tela de login)
             if (!loggedInUser) {
                 document.title = 'IT HELPDESK - Login';
                 return;
             }
 
-            // Se tem usuário, esconde login e mostra o painel certo
             loginScreen.classList.add('hidden');
 
             if (loggedInUser.perfil === 'admin') {
@@ -480,7 +556,6 @@
             }
         }
 
-        // Inicializa ao carregar a página (Evita acesso via URL sem login)
         function initializeApp() {
             const storedUser = localStorage.getItem('loggedInUser');
             if (storedUser) {
@@ -495,9 +570,6 @@
             checkAccess();
         }
 
-        // -----------------------------------
-        // 3. LÓGICA DE LOGIN E CADASTRO
-        // -----------------------------------
         async function fazerCadastro() {
             const nome = document.getElementById('reg-nome').value;
             const email = document.getElementById('reg-email').value;
@@ -547,7 +619,6 @@
                 }
 
                 if (data.success) {
-                    // Salva sessão segura no navegador
                     loggedInUser = { perfil: data.perfil, nome: data.nome };
                     localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
                     checkAccess();
@@ -562,9 +633,6 @@
             }
         }
 
-        // -----------------------------------
-        // 4. FUNÇÕES DO USUÁRIO
-        // -----------------------------------
         async function loadUserTickets() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php?user=${loggedInUser.nome}`);
@@ -575,12 +643,12 @@
                 tickets.forEach(ticket => {
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
                     tbody.innerHTML += `
-                    <tr>
-                        <td>${ticket.titulo}</td>
-                        <td>${ticket.categoria}</td>
-                        <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
-                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                    </tr>`;
+                <tr>
+                    <td>${ticket.titulo}</td>
+                    <td>${ticket.categoria}</td>
+                    <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                </tr>`;
                 });
             } catch (e) { console.error("Erro user tickets", e); }
         }
@@ -614,15 +682,11 @@
             } catch (e) { console.error("Erro criar ticket", e); }
         }
 
-        // -----------------------------------
-        // 5. FUNÇÕES DO ADMIN (COM MODAL)
-        // -----------------------------------
         async function loadAdminData() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php`);
                 const tickets = await response.json();
 
-                // SALVA NO CACHE GLOBAL
                 allTicketsCache = tickets;
 
                 const tbody = document.querySelector('#admin-view table tbody');
@@ -639,32 +703,30 @@
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : 'status-closed';
                     let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
 
-                    // BOTÕES DE AÇÃO
                     let botoes = '';
 
-                    // 1. Botão VER DETALHES (Sempre aparece)
-                    botoes += `<button class="btn btn-sm" onclick="verDetalhes(${ticket.id})" title="Ver Detalhes" style="background:var(--info); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:5px;">
-                                    <i class="fas fa-eye"></i>
-                               </button>`;
+                    botoes += `<button class="btn-sm" onclick="verDetalhes(${ticket.id})" title="Ver Detalhes" style="background:#36b9cc; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; margin-right:5px;">
+                                👁️
+                           </button>`;
 
-                    // 2. Botão CONCLUIR (Só se estiver aberto)
+
                     if (ticket.status === 'aberto') {
-                        botoes += `<button class="btn btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" title="Concluir" style="background:var(--success); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
-                                    <i class="fas fa-check"></i>
-                                   </button>`;
+                        botoes += `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" title="Concluir" style="background:#1cc88a; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">
+                                ✔️
+                               </button>`;
                     } else {
-                        botoes += `<span style="color:var(--text-main); opacity:0.6; font-size:0.8em; margin-left:5px;">Concluído</span>`;
+                        botoes += `<span style="color:#aaa; font-size:0.8em; margin-left:5px;">Concluído</span>`;
                     }
 
                     tbody.innerHTML += `
-                    <tr>
-                        <td>#${ticket.id}</td>
-                        <td>${ticket.solicitante}</td>
-                        <td>${ticket.titulo}</td>
-                        <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
-                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                        <td>${botoes}</td>
-                    </tr>`;
+                <tr>
+                    <td>#${ticket.id}</td>
+                    <td>${ticket.solicitante}</td>
+                    <td>${ticket.titulo}</td>
+                    <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
+                    <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                    <td>${botoes}</td>
+                </tr>`;
                 });
 
                 renderCharts(statusCounts, priorityCounts);
@@ -684,13 +746,13 @@
             } catch (e) { console.error("Erro atualizar", e); }
         }
 
-        // --- FUNÇÕES DO MODAL DE DETALHES ---
+
         function verDetalhes(id) {
-            // Busca o ticket no cache local
+
             const ticket = allTicketsCache.find(t => t.id == id);
             if (!ticket) return;
 
-            // Preenche o modal
+
             document.getElementById('dt-id').innerText = ticket.id;
             document.getElementById('dt-nome').innerText = ticket.solicitante;
             document.getElementById('dt-categoria').innerText = ticket.titulo;
@@ -698,7 +760,7 @@
             document.getElementById('dt-status').innerText = ticket.status.toUpperCase();
             document.getElementById('dt-descricao').innerText = ticket.descricao || "Sem descrição.";
 
-            // Mostra o modal
+
             document.getElementById('modal-detalhes').classList.remove('hidden');
         }
 
@@ -706,15 +768,11 @@
             document.getElementById('modal-detalhes').classList.add('hidden');
         }
 
-        // Fecha ao clicar fora
         window.onclick = function (event) {
             const modal = document.getElementById('modal-detalhes');
             if (event.target == modal) closeModal();
         }
 
-        // -----------------------------------
-        // 6. UTILITÁRIOS E INICIALIZAÇÃO
-        // -----------------------------------
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
         }
@@ -722,10 +780,7 @@
         function renderCharts(statusData, priorityData) {
             if (window.myChart1) window.myChart1.destroy();
             if (window.myChart2) window.myChart2.destroy();
-
-            // Verifica se está no modo escuro para ajustar a cor do texto do gráfico
-            const isDark = document.body.classList.contains('dark-mode');
-            Chart.defaults.color = isDark ? '#e0e0e0' : '#858796';
+            Chart.defaults.color = '#858796';
 
             const ctx1 = document.getElementById('chartProgress').getContext('2d');
             window.myChart1 = new Chart(ctx1, {
@@ -733,7 +788,7 @@
                 data: {
                     labels: ['Abertos', 'Resolvidos'],
                     datasets: [{
-                        label: 'Chamados',
+                        label: 'Status',
                         data: [statusData.abertos || 0, statusData.resolvidos || 0],
                         backgroundColor: ['#f6c23e', '#1cc88a'],
                         borderRadius: 5
@@ -756,10 +811,9 @@
             });
         }
 
-        // INICIA O APP (Verificação de Segurança)
+
         initializeApp();
     </script>
-
 </body>
 
 </html>
