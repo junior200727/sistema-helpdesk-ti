@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* --- CSS VARIAVEIS (TEMA) --- */
         :root {
             --primary-color: #4e73df;
             --secondary-color: #858796;
@@ -25,7 +24,7 @@
             --shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
         }
 
-        /* Tema Escuro */
+
         body.dark-mode {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
@@ -42,17 +41,14 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* AQUI ESTAVA O PROBLEMA: Removi o height: 100vh e o overflow: hidden */
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             min-height: 100vh;
-            /* Permite crescer */
             overflow-y: auto;
-            /* Permite rolar a página */
         }
 
-        /* --- UTILITARIOS --- */
         .hidden {
             display: none !important;
         }
@@ -84,7 +80,6 @@
             margin-bottom: 20px;
         }
 
-        /* --- TELA DE LOGIN --- */
         #login-screen {
             display: flex;
             justify-content: center;
@@ -112,14 +107,13 @@
             color: #333;
         }
 
-        /* --- LAYOUT DO DASHBOARD --- */
-        /* Mudamos para min-height para acompanhar o scroll */
+
         .dashboard-container {
             display: flex;
             min-height: 100vh;
         }
 
-        /* Sidebar Fixa ou acompanhando */
+
         .sidebar {
             width: var(--sidebar-width);
             background: var(--card-bg);
@@ -161,7 +155,7 @@
             flex: 1;
         }
 
-        /* Conteúdo Principal agora rola junto com o corpo */
+
         .main-content {
             flex: 1;
             padding: 30px;
@@ -183,7 +177,7 @@
             font-size: 1.2rem;
         }
 
-        /* --- ADMIN DASHBOARD --- */
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -222,7 +216,7 @@
             position: relative;
         }
 
-        /* Tabela */
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -258,7 +252,7 @@
             background: var(--success-color);
         }
 
-        /* Prioridades */
+
         .priority-high {
             color: var(--danger-color);
             font-weight: bold;
@@ -274,14 +268,12 @@
             font-weight: bold;
         }
 
-        /* --- USER DASHBOARD --- */
         .ticket-form {
             display: grid;
             gap: 15px;
             max-width: 100%;
         }
 
-        /* Garante que caiba na tela */
         input,
         select,
         textarea {
@@ -291,6 +283,77 @@
             border-radius: 5px;
             background: var(--bg-color);
             color: var(--text-color);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(3px);
+
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            color: #333;
+        }
+
+
+        body.dark-mode .modal-content {
+            background: #2c2c2c;
+            color: #f1f1f1;
+            border: 1px solid #444;
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #4e73df;
+            padding-bottom: 10px;
+        }
+
+        .modal-content p {
+            margin: 10px 0;
+        }
+
+        .desc-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #4e73df;
+            margin-top: 15px;
+            white-space: pre-wrap;
+
+        }
+
+        body.dark-mode .desc-box {
+            background: #3a3b45;
+            border-left-color: #4e73df;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close-btn:hover {
+            color: #f00;
         }
     </style>
 </head>
@@ -510,18 +573,35 @@
             </div>
         </div>
     </div>
-    <script>
-     
-        const API_URL = './api';
-        let loggedInUser = null; // Variável para armazenar o estado do usuário
 
-        // Referências aos elementos que controlam a visualização
+    <div id="modal-detalhes" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>📋 Detalhes do Chamado #<span id="dt-id"></span></h2>
+
+            <p><strong>Solicitante:</strong> <span id="dt-nome"></span></p>
+            <p><strong>Categoria:</strong> <span id="dt-categoria"></span></p>
+            <p><strong>Data:</strong> <span id="dt-data"></span></p>
+            <p><strong>Status:</strong> <span id="dt-status"></span></p>
+
+            <h3>Descrição do Problema:</h3>
+            <div class="desc-box" id="dt-descricao">
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button onclick="closeModal()" style="padding: 8px 16px; cursor: pointer;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = './api';
+        let loggedInUser = null;
+        let allTicketsCache = []; 
         const loginScreen = document.getElementById('login-screen');
-        
         const userPanel = document.getElementById('user-view');
         const adminPanel = document.getElementById('admin-view');
         const errorMsg = document.getElementById('error-msg');
-
 
         function showRegister() {
             document.getElementById('box-login').classList.add('hidden');
@@ -553,7 +633,6 @@
             } else if (loggedInUser.perfil === 'user') {
                 if (userPanel) userPanel.classList.remove('hidden');
                 document.title = 'IT HELPDESK - Usuário';
-                
                 document.querySelector('#user-view .header h1').innerText = "Olá, " + loggedInUser.nome;
                 loadUserTickets();
             }
@@ -562,30 +641,29 @@
         function initializeApp() {
             const storedUser = localStorage.getItem('loggedInUser');
             if (storedUser) {
-                // Restaura o estado de login se houver dados salvos
                 loggedInUser = JSON.parse(storedUser);
             }
-            
             checkAccess();
         }
 
+        function logout() {
+            loggedInUser = null;
+            localStorage.removeItem('loggedInUser');
+            checkAccess();
+        }
 
         async function fazerCadastro() {
             const nome = document.getElementById('reg-nome').value;
             const email = document.getElementById('reg-email').value;
             const senha = document.getElementById('reg-senha').value;
 
-            if (!nome || !email || !senha) {
-                alert("Preencha todos os campos!");
-                return;
-            }
+            if (!nome || !email || !senha) { alert("Preencha todos os campos!"); return; }
 
             try {
                 const response = await fetch(`${API_URL}/register.php`, {
                     method: 'POST',
                     body: JSON.stringify({ nome, email, senha })
                 });
-
                 const result = await response.json();
 
                 if (result.success) {
@@ -594,10 +672,7 @@
                 } else {
                     alert("Erro: " + result.message);
                 }
-            } catch (error) {
-                console.error(error);
-                alert("Erro ao conectar com o servidor.");
-            }
+            } catch (error) { console.error(error); alert("Erro ao conectar com o servidor."); }
         }
 
         async function fazerLoginReal() {
@@ -620,31 +695,19 @@
 
                 const text = await response.text();
                 let data;
-
-                try {
-                    data = JSON.parse(text);
-                } catch (e) {
-                    console.error("Resposta inválida do PHP:", text);
-                    alert("Erro técnico no servidor. Verifique o console (F12).");
-                    return;
+                try { data = JSON.parse(text); } catch (e) {
+                    console.error("Erro PHP:", text);
+                    alert("Erro técnico no servidor."); return;
                 }
 
                 if (data.success) {
-                    loggedInUser = {
-                        perfil: data.perfil,
-                        nome: data.nome
-                    };
-
+                    loggedInUser = { perfil: data.perfil, nome: data.nome };
                     localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
-                    
                     checkAccess();
-
                 } else {
-                    
                     errorMsg.style.display = 'block';
                     errorMsg.innerText = data.message;
                 }
-
             } catch (error) {
                 console.error('Erro de rede:', error);
                 errorMsg.style.display = 'block';
@@ -652,36 +715,26 @@
             }
         }
 
-        function logout() {
-            loggedInUser = null;
-            localStorage.removeItem('loggedInUser');
-            checkAccess(); 
-        }
-
         async function loadUserTickets() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php?user=${loggedInUser.nome}`);
                 const tickets = await response.json();
-
                 const tbody = document.querySelector('#user-view table tbody');
                 tbody.innerHTML = '';
 
                 tickets.forEach(ticket => {
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : (ticket.status === 'andamento' ? 'status-progress' : 'status-closed');
-
                     tbody.innerHTML += `
-                    <tr>
-                        <td>${ticket.titulo}</td>
-                        <td>${ticket.categoria}</td>
-                        <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
-                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${ticket.titulo}</td>
+                    <td>${ticket.categoria}</td>
+                    <td>${new Date(ticket.data_abertura).toLocaleDateString()}</td>
+                    <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                </tr>`;
                 });
-            } catch (e) { console.error("Erro ao carregar tickets user", e); }
+            } catch (e) { console.error("Erro user tickets", e); }
         }
 
-    
         async function createTicket() {
             const categoria = document.getElementById('inp-categoria').value;
             const prioridade = document.getElementById('inp-prioridade').value;
@@ -708,14 +761,15 @@
                     loadUserTickets();
                     document.getElementById('inp-descricao').value = '';
                 }
-            } catch (e) { console.error("Erro ao criar ticket", e); }
+            } catch (e) { console.error("Erro criar ticket", e); }
         }
 
-        
         async function loadAdminData() {
             try {
                 const response = await fetch(`${API_URL}/chamados.php`);
                 const tickets = await response.json();
+
+                allTicketsCache = tickets;
 
                 const tbody = document.querySelector('#admin-view table tbody');
                 tbody.innerHTML = '';
@@ -731,54 +785,76 @@
                     let badgeClass = ticket.status === 'aberto' ? 'status-open' : 'status-closed';
                     let prioClass = ticket.prioridade === 'alta' ? 'priority-high' : (ticket.prioridade === 'media' ? 'priority-med' : 'priority-low');
 
-                    
-                    let acaoBotao = '';
+                    let botoes = '';
+
+                    botoes += `<button class="btn-sm" onclick="verDetalhes(${ticket.id})" title="Ver Detalhes" style="background:#36b9cc; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; margin-right:5px;">
+                                👁️
+                           </button>`;
+
+                  
                     if (ticket.status === 'aberto') {
-                        acaoBotao = `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" style="background:#1cc88a; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
-                                    <i class="fas fa-check"></i> Concluir
-                                 </button>`;
+                        botoes += `<button class="btn-sm" onclick="mudarStatus(${ticket.id}, 'fechado')" title="Concluir" style="background:#1cc88a; color:white; border:none; padding:5px 8px; border-radius:4px; cursor:pointer;">
+                                ✔️
+                               </button>`;
                     } else {
-                        acaoBotao = `<span style="color:#aaa; font-size:0.8em;">Concluído</span>`;
+                        botoes += `<span style="color:#aaa; font-size:0.8em; margin-left:5px;">Concluído</span>`;
                     }
 
                     tbody.innerHTML += `
-                    <tr>
-                        <td>#${ticket.id}</td>
-                        <td>${ticket.solicitante}</td>
-                        <td>${ticket.titulo}</td>
-                        <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
-                        <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
-                        <td>${acaoBotao}</td>
-                    </tr>
-                `;
+                <tr>
+                    <td>#${ticket.id}</td>
+                    <td>${ticket.solicitante}</td>
+                    <td>${ticket.titulo}</td>
+                    <td class="${prioClass}">${ticket.prioridade.toUpperCase()}</td>
+                    <td><span class="status-badge ${badgeClass}">${ticket.status}</span></td>
+                    <td>${botoes}</td>
+                </tr>`;
                 });
 
                 renderCharts(statusCounts, priorityCounts);
-            } catch (e) { console.error("Erro ao carregar admin data", e); }
+            } catch (e) { console.error("Erro admin data", e); }
         }
 
-        
         async function mudarStatus(id, novoStatus) {
             if (!confirm("Deseja marcar este chamado como resolvido?")) return;
-
             try {
                 const response = await fetch(`${API_URL}/chamados.php`, {
                     method: 'PUT',
                     body: JSON.stringify({ id: id, novo_status: novoStatus })
                 });
                 const result = await response.json();
-
-                if (result.success) {
-                    loadAdminData(); // Recarrega a tabela para ver a mudança
-                } else {
-                    alert("Erro: " + result.message);
-                }
-            } catch (e) {
-                console.error("Erro ao atualizar", e);
-            }
+                if (result.success) loadAdminData();
+                else alert("Erro: " + result.message);
+            } catch (e) { console.error("Erro atualizar", e); }
         }
 
-        
+ 
+        function verDetalhes(id) {
+           
+            const ticket = allTicketsCache.find(t => t.id == id);
+            if (!ticket) return;
+
+         
+            document.getElementById('dt-id').innerText = ticket.id;
+            document.getElementById('dt-nome').innerText = ticket.solicitante;
+            document.getElementById('dt-categoria').innerText = ticket.titulo;
+            document.getElementById('dt-data').innerText = ticket.data_abertura ? new Date(ticket.data_abertura).toLocaleDateString() : 'N/A';
+            document.getElementById('dt-status').innerText = ticket.status.toUpperCase();
+            document.getElementById('dt-descricao').innerText = ticket.descricao || "Sem descrição.";
+
+           
+            document.getElementById('modal-detalhes').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-detalhes').classList.add('hidden');
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('modal-detalhes');
+            if (event.target == modal) closeModal();
+        }
+
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
         }
@@ -786,8 +862,6 @@
         function renderCharts(statusData, priorityData) {
             if (window.myChart1) window.myChart1.destroy();
             if (window.myChart2) window.myChart2.destroy();
-
-            
             Chart.defaults.color = '#858796';
 
             const ctx1 = document.getElementById('chartProgress').getContext('2d');
@@ -820,7 +894,7 @@
         }
 
         
-        initializeApp(); // Chama a função para verificar o login ao carregar a página
+        initializeApp();
     </script>
 </body>
 
